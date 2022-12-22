@@ -42,6 +42,7 @@ try:
   import triton
   import triton.compiler as tc
   import triton.language as tl
+  import triton._C.libtriton.triton as _triton
   CAN_USE_TRITON = True
 except ModuleNotFoundError:
   pass
@@ -139,11 +140,17 @@ def compile_triton_func(
   # TODO(sharadmv): handle multiple devices, right now we assume device 0 which
   # is fine when we have multiple of the same GPU but this won't work in
   # general.
-  asm, shared_mem, name = tc._compile(
-      triton_func, signature=signature, device=0,
-      specialization=specialization,
-      constants=metadata, num_warps=num_warps,
-      num_stages=num_stages, extern_libs={}, output="cubin")
+  device = 0
+  ttir = tc.ast_to_ttir(triton_func, signature, specialization, metadata)
+  compute_capability = triton_kernel_call_lib.get_compute_capability(device)
+  ttgir = tc.ttir_to_ttgir(ttir, num_warps, num_stages, compute_capability)
+  extern_libs = {}
+  llir = tc.ttgir_to_llir(ttgir, extern_libs, compute_capability)
+  shared_mem = _triton.get_shared_memory_size(ttgir)
+  ptx = str(tc.llir_to_ptx(llir, compute_capability))
+  name = tc.ptx_get_kernel_name(ptx)
+  cubin = tc.ptx_to_cubin(ptx, compute_capability)
+  asm = dict(ttir=ttir, ttgir=ttgir, llir=llir, ptx=ptx, cubin=cubin)
   return name, asm, shared_mem
 
 def emit_triton_kernel_call(ctx, name, asm, shared_mem, *,
