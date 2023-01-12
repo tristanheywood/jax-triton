@@ -19,7 +19,8 @@ from setuptools import find_packages
 from setuptools import setup
 
 setup(
-    packages=find_packages(),
+    name="jax-triton",
+    packages=["jax_triton"],
     ext_modules=[
         Extension(
             name="jax_triton.triton_kernel_call_lib",
