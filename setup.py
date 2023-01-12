@@ -20,7 +20,7 @@ from setuptools import setup
 
 setup(
     name="jax-triton",
-    packages=["jax_triton"],
+    packages=find_packages(),
     ext_modules=[
         Extension(
             name="jax_triton.triton_kernel_call_lib",
