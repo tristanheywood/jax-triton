@@ -339,7 +339,7 @@ def or_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
 triton_lowering_rules[jax.lax.or_p] = or_lowering_rule
 
 def not_lowering_rule(ctx: TritonLoweringRuleContext, a):
-  return a.__not__(_builder=ctx.builder)
+  return a.__invert__(_builder=ctx.builder)
 triton_lowering_rules[jax.lax.not_p] = not_lowering_rule
 
 def select_n_lowering_rule(ctx: TritonLoweringRuleContext, pred, a, b):
