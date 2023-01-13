@@ -319,9 +319,17 @@ def max_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
   return tl.semantic.where(pred, a, b, ctx.builder)
 triton_lowering_rules[jax.lax.max_p] = max_lowering_rule
 
+def eq_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
+  return a.__eq__(b, _builder=ctx.builder)
+triton_lowering_rules[jax.lax.eq_p] = eq_lowering_rule
+
 def ge_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
   return a.__ge__(b, _builder=ctx.builder)
 triton_lowering_rules[jax.lax.ge_p] = ge_lowering_rule
+
+def gt_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
+  return a.__gt__(b, _builder=ctx.builder)
+triton_lowering_rules[jax.lax.gt_p] = gt_lowering_rule
 
 def select_n_lowering_rule(ctx: TritonLoweringRuleContext, pred, a, b):
   return tl.semantic.where(pred, b, a, ctx.builder)
@@ -338,6 +346,10 @@ triton_lowering_rules[jax.lax.sub_p] = _sub_lowering_rule
 def _lt_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
   return a.__lt__(b, _builder=ctx.builder)
 triton_lowering_rules[jax.lax.lt_p] = _lt_lowering_rule
+
+def _le_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
+  return a.__le__(b, _builder=ctx.builder)
+triton_lowering_rules[jax.lax.le_p] = _le_lowering_rule
 
 def _sqrt_lowering_rule(ctx: TritonLoweringRuleContext, a):
   return tl.sqrt(a, _builder=ctx.builder)
