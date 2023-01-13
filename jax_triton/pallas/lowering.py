@@ -330,6 +330,14 @@ def gt_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
   return a.__gt__(b, _builder=ctx.builder)
 triton_lowering_rules[jax.lax.gt_p] = gt_lowering_rule
 
+def and_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
+  return a.__and__(b, _builder=ctx.builder)
+triton_lowering_rules[jax.lax.and_p] = and_lowering_rule
+
+def or_lowering_rule(ctx: TritonLoweringRuleContext, a, b):
+  return a.__or__(b, _builder=ctx.builder)
+triton_lowering_rules[jax.lax.or_p] = or_lowering_rule
+
 def select_n_lowering_rule(ctx: TritonLoweringRuleContext, pred, a, b):
   return tl.semantic.where(pred, b, a, ctx.builder)
 triton_lowering_rules[jax.lax.select_n_p] = select_n_lowering_rule
