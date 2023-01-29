@@ -184,7 +184,7 @@ def emit_triton_kernel_call(ctx, name, asm, shared_mem, *,
                             metaparams, num_warps):
   if dump_binary_path is not None:
     binary = dict(
-        asm=asm,
+        asm={**asm, "ttir": asm["ttir"].str(), "ttgir": asm["ttgir"].str()},
         shared_mem=shared_mem,
         name=name)
     with open(dump_binary_path, "wb") as fp:
