@@ -57,16 +57,15 @@ def mha_forward_kernel(
     qk += pl.dot(q, k.T)   # [block_q, block_k]
     if sm_scale != 1.:
       qk *= sm_scale # [block_q, block_k]
+
     # Bring closer to XLA:GPU numerics.
-    # p_ij = p_ij.astype(q_ref.dtype)
-    # p_ij = p_ij.astype(jnp.float32)
+    qk = qk.astype(q_ref.dtype)
+    qk = qk.astype(jnp.float32)
     m_curr = jnp.maximum(jnp.max(qk, axis=1), m_prev)
     l_prev *= jnp.exp(m_prev - m_curr)
     p = jnp.exp(qk - m_curr[:, None])
     l_curr = jnp.sum(p, axis=1) + l_prev
 
-    # NOTE: Flash attention begins.
-    # -- update m_i and l_i
     l_rcp = 1. / l_curr
     p = p * l_rcp
     acc *= (l_prev * l_rcp)[:, None]
