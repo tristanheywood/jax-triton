@@ -767,7 +767,7 @@ class FusedAttentionTest(parameterized.TestCase):
     (2, 384, 2, 32),
   ])
   def test_fused_attention_fwd(self, batch_size, seq_len, num_heads, head_dim):
-    self.skipTest("Not yet working on V100")
+    # self.skipTest("Not yet working on V100")
     # TODO(sharadmv): expose this information in `jaxlib`
     if torch is not None and torch.cuda.get_device_capability() < (8, 0):
       raise unittest.SkipTest(
@@ -787,7 +787,7 @@ class FusedAttentionTest(parameterized.TestCase):
     (2, 384, 2, 32),
   ])
   def test_fused_attention_bwd(self, batch_size, seq_len, num_heads, head_dim):
-    self.skipTest("Not yet working on V100")
+    # self.skipTest("Not yet working on V100")
     # TODO(sharadmv): expose this information in `jaxlib`
     if torch is not None and torch.cuda.get_device_capability() < (8, 0):
       raise unittest.SkipTest(

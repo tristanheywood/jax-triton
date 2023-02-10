@@ -67,7 +67,7 @@ def mha_forward_kernel(
     l_curr = jnp.sum(p, axis=1) + l_prev
 
     l_rcp = 1. / l_curr
-    p = p * l_rcp
+    p = p * l_rcp[:, None]
     acc *= (l_prev * l_rcp)[:, None]
     p = p.astype(jnp.float16)
 
@@ -246,7 +246,7 @@ def mha_backward_kernel(
     def inner_loop(start_q, refs):
       dv_ref, dk_ref = refs
       q = pl.load(q_ref, (pl.ds(start_q * block_q, block_q), slice(None)))
-      qk = pl.dot(q, k, trans_b=True)
+      qk = pl.dot(q, k.T)
       qk = qk.astype(q_ref.dtype)
       qk = qk.astype(jnp.float32)
       if sm_scale != 1.0:
@@ -254,14 +254,14 @@ def mha_backward_kernel(
       m = pl.load(m_ref, (pl.ds(start_q * block_q, block_q),))
       p = jnp.exp(qk - m[:, None])
       do = pl.load(do_scaled_ref, (pl.ds(start_q * block_q, block_q), slice(None)))
-      dv_ref[()] += pl.dot(p.astype(do.dtype), do, trans_a=True)
+      dv_ref[()] += pl.dot(p.astype(do.dtype).T, do)
       di = pl.load(delta_ref, (pl.ds(start_q * block_q, block_q),))
       dp = jnp.zeros((block_q, block_k), dtype=jnp.float32) - di[:, None]
-      dp = dp + pl.dot(do, v, trans_b=True)
+      dp = dp + pl.dot(do, v.T)
       ds = p * dp
       if sm_scale != 1.0:
         ds = ds * sm_scale
-      dk_ref[:] += pl.dot(ds.astype(q_ref.dtype), q, trans_a=True)
+      dk_ref[:] += pl.dot(ds.astype(q_ref.dtype).T, q)
       dq = pl.load(dq_ref, (pl.ds(start_q * block_q, block_q),
                             slice(None)), eviction_policy="evict_last")
       dq = dq + pl.dot(ds.astype(k.dtype), k).astype(dq.dtype)

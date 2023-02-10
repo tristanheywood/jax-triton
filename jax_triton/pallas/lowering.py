@@ -124,7 +124,6 @@ def _process_grid_to_3d_grid(builder, grid_spec: GridSpec):
 def lower_jaxpr_to_triton_module(jaxpr: jax_core.Jaxpr, in_shapes, grid_spec: GridSpec,
                                  name: str) -> tl_ir.module:
   jaxpr, _ = pe.dce_jaxpr(jaxpr, [True] * len(jaxpr.outvars), instantiate=True)
-  print(jaxpr)
   ir_context = tl_ir.context()
   ir_context.load_triton()
   builder = tl_ir.builder(ir_context)

@@ -169,6 +169,7 @@ def get_or_create_triton_kernel(
     num_warps,
     num_stages,
     metaparams,
+    dump: bool,
 ) -> triton_kernel_call_lib.TritonKernel:
   signature = dict(enumerate(arg_dtypes))
 
@@ -196,7 +197,7 @@ def get_or_create_triton_kernel(
     device = 0
     ttir = tc.ast_to_ttir(fn, signature, specialization, constants)
     name, asm, shared_mem = compile_ttir(ttir, device=device, num_warps=num_warps,
-                                         num_stages=num_stages, dump=True)
+                                         num_stages=num_stages, dump=dump)
 
     kernel = triton_kernel_call_lib.TritonKernel(
         asm["cubin"], name, num_warps, shared_mem
@@ -220,6 +221,7 @@ def triton_kernel_call_lowering(
     num_warps,
     num_stages,
     input_output_aliases,
+    debug,
     **metaparams,
 ):
   if jaxlib.version.__version_info__ < (0, 3, 22) and input_output_aliases:
@@ -299,6 +301,7 @@ def triton_kernel_call_lowering(
           num_warps=config.num_warps,
           num_stages=config.num_stages,
           metaparams=config_metaparams,
+          dump=debug,
       )
       grid = normalize_grid(grid, config_metaparams)
       kernel_calls.append(
