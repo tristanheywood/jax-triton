@@ -303,7 +303,6 @@ def _compile_jaxpr(jaxpr: jax_core.Jaxpr, in_shapes, grid_spec: GridSpec,
   lowering_result = lowering.lower_jaxpr_to_triton_module(jaxpr, in_shapes, grid_spec, name)
   ttir = lowering_result.module
   device = 0
-  ttir.dump()
   name, asm, shared_mem = compile_ttir(ttir, device=device, num_warps=num_warps,
                                        num_stages=num_stages, dump=dump)
   return TritonCompilationResult(name, asm, shared_mem, lowering_result)
