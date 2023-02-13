@@ -383,6 +383,7 @@ def triton_call(
     num_warps: int = 4,
     num_stages: int = 2,
     input_output_aliases: Optional[Dict[int, int]] = None,
+    debug: bool = False,
     **metaparams: Any,
 ) -> Any:
   """Calls a Triton kernel with `jax.Array` arguments.
@@ -454,6 +455,7 @@ def triton_call(
       indices. Providing a mapping will alias the corresponding buffers.
     num_warps: The number of warps used to execute the Triton kernel.
     num_stages: The number of stages emitted by the Triton compiler.
+    debug: Prints out intermediate IRs if True for debugging purposes.
     **metaparams: Additional keyword arguments that will be provided to a `grid`
       (if it is a function) and to the Triton kernel as `constexpr` arguments.
 
@@ -494,6 +496,7 @@ def triton_call(
       num_warps=num_warps,
       num_stages=num_stages,
       input_output_aliases=tuple(input_output_aliases.items()),
+      debug=debug,
       **metaparams,
   )
   return tree_util.tree_unflatten(out_tree, out_flat)
